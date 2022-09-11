@@ -18,7 +18,7 @@ const createUserValidator = z.object({
   });
 
 const createComplainValidator = z.object({
-  userId: z.string().min(1),
+  user: z.string().min(1),
   complaint: z.string().min(10),
   type: z.string().min(1),
   links: z.string().array()
