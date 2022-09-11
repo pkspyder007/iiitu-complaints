@@ -4,10 +4,11 @@ type ComplaintTypes = "CIVIL" | "ELECTRICAL" | "IRRIGATION" | "OTHER"
 type ComplaintStatus = "PENDING" | "PROCESSING" | "COMPLETE" | "ESCALATED"
 
 interface IComplaint {
-    userId: Types.ObjectId;
+    user: Types.ObjectId;
     type: ComplaintTypes;
     complaint: string;
     links: string[];
+    remarks: string;
     status: ComplaintStatus;
 }
 
@@ -20,14 +21,17 @@ const complaintSchema = new Schema<IComplaint>({
             type: String,
             required: true
         },
-        links: {
+            links: {
             type: [String]
+        },
+        remarks: {
+            type: String
         },
         status: {
             type: String,
             default: "PENDING"
         },
-        userId: {
+        user: {
             type: Schema.Types.ObjectId,
             ref: 'User',
             required: true

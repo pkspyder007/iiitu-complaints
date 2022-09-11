@@ -2,6 +2,9 @@ import { Request, Response } from "express";
 import { Complaint } from "../models/complaint";
 import { validtors } from "../lib/validators";
 import { getErrorMessageString } from "../lib/utils";
+import { sendEmail } from "../lib/utils/email";
+import { escalateEmailTemplate } from "../lib/misc/escalateEmailTemplate";
+import { IUser } from "../models/user";
 
 export const createComplaint = async (req: Request, res: Response) => {
   try {
@@ -16,21 +19,21 @@ export const createComplaint = async (req: Request, res: Response) => {
 
     const complain = await Complaint.create({ ...req.body });
 
-    if(!complain) {
-        return res.status(401).json({
-            success: false,
-            message: "Something went wrong while creating complain"
-        });
+    if (!complain) {
+      return res.status(401).json({
+        success: false,
+        message: "Something went wrong while creating complain",
+      });
     }
 
     return res.status(201).json({
-        success: true,
-        message: "Complain created successfully"
+      success: true,
+      message: "Complain created successfully",
     });
   } catch (error) {
     return res.status(500).json({
-        success: false,
-        message: "Something went wrong while creating user"
+      success: false,
+      message: "Something went wrong while creating user",
     });
   }
 };
@@ -52,16 +55,86 @@ export const getAllComplaintsForUser = async (req: Request, res: Response) => {
 };
 
 export const getAllComplaintsForAdmin = async (req: Request, res: Response) => {
-    try {
-      const complains = await Complaint.find({ });
-  
+  try {
+    const complains = await Complaint.find({});
+
+    return res.json({
+      success: true,
+      complains,
+    });
+  } catch (error: any) {
+    res.status(501).json({
+      message: error.message,
+    });
+  }
+};
+
+export const addRemark = async (req: Request, res: Response) => {
+  try {
+    const complain = await Complaint.findByIdAndUpdate(req.body.complainId, {
+      $set: {
+        remarks: req.body.remarks,
+      },
+    });
+
+    return res.json({
+      success: true,
+      complain,
+    });
+  } catch (error: any) {
+    res.status(501).json({
+      message: error.message,
+    });
+  }
+};
+
+export const updateStatus = async (req: Request, res: Response) => {
+  try {
+    const complain = await Complaint.findByIdAndUpdate(req.body.complainId, {
+      $set: {
+        status: req.body.status,
+      },
+    });
+
+    return res.json({
+      success: true,
+      complain,
+    });
+  } catch (error: any) {
+    res.status(501).json({
+      message: error.message,
+    });
+  }
+};
+
+export const escalate = async (req: Request, res: Response) => {
+  try {
+    const complain = await Complaint.findByIdAndUpdate(req.body.complainId, {
+      $set: {
+        status: "ESCALATED",
+      },
+    }).populate("user");
+
+    if (!complain) {
       return res.json({
-        success: true,
-        complains,
-      });
-    } catch (error: any) {
-      res.status(501).json({
-        message: error.message,
+        success: false,
+        message: "Something went wrong",
       });
     }
-  };
+
+    await sendEmail(
+      "pkspyder007@gmail.com",
+      "Complaint resolution pending ... Escalation requested",
+      escalateEmailTemplate(
+        (complain.user as unknown as IUser).name,
+        (complain.user as unknown as IUser).rollno,
+        complain._id.toString(),
+        `${req.protocol}://${req.get("host")}/complaints/pdf/${complain._id}`
+      )
+    );
+  } catch (error: any) {
+    res.status(501).json({
+      message: error.message,
+    });
+  }
+};
