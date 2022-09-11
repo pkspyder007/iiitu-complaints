@@ -5,11 +5,13 @@ import { getErrorMessageString } from "../lib/utils";
 import { sendEmail } from "../lib/utils/email";
 import { escalateEmailTemplate } from "../lib/misc/escalateEmailTemplate";
 import { IUser } from "../models/user";
+import { logger } from "../middlewares/logger";
 
 export const createComplaint = async (req: Request, res: Response) => {
   try {
     // validate user body
-    const validateResult = validtors.createComplain.safeParse(req.body);
+    const payload = { ...req.body, user: req.user.userId };
+    const validateResult = validtors.createComplain.safeParse(payload);
     if (!validateResult.success) {
       return res.status(401).json({
         success: false,
@@ -17,7 +19,7 @@ export const createComplaint = async (req: Request, res: Response) => {
       });
     }
 
-    const complain = await Complaint.create({ ...req.body });
+    const complain = await Complaint.create({ ...payload });
 
     if (!complain) {
       return res.status(401).json({
@@ -31,9 +33,10 @@ export const createComplaint = async (req: Request, res: Response) => {
       message: "Complain created successfully",
     });
   } catch (error) {
+    logger.error(error);
     return res.status(500).json({
       success: false,
-      message: "Something went wrong while creating user",
+      message: "Something went wrong while creating complain",
     });
   }
 };
