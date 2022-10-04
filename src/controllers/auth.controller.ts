@@ -22,18 +22,18 @@ export const login = async (req: Request, res: Response) => {
     const tkn = createLoginJWT(user._id.toString(), user.role, user.email);
     res.cookie("authtkn", tkn, {
       maxAge: 1000 * 60 * 60 * 24,
-      httpOnly: true,
     });
 
     res.status(200).json({
       msg: "Logged in successfully",
       role: user.role,
+      email: user.email     
     });
   } catch (error: any) {
     res.status(501).json({
       message: error.message,
     });
-  }
+  }     
 };
 
 export const logout = (req: Request, res: Response) => {
@@ -76,7 +76,7 @@ export const verifyEmail = async (req: Request, res: Response) => {
 
 export const autoLogin = (req: Request, res: Response) => {
     if (req.user) {
-      res.json({ loggedIn: true, role: req.user.role });
+      res.json({ loggedIn: true, role: req.user.role, email: req.user.email });
     } else {
       res.json({ loggedIn: false, role: "" });
     }

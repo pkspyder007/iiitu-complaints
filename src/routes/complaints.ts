@@ -5,6 +5,7 @@ import {
   escalate,
   getAllComplaintsForAdmin,
   getAllComplaintsForUser,
+  getComplaintById,
   updateStatus,
 } from "../controllers/complaint.controller";
 import { checkAuth, isAdmin } from "../middlewares/auth";
@@ -12,6 +13,8 @@ import { checkAuth, isAdmin } from "../middlewares/auth";
 const complainsRouter = Router();
 
 complainsRouter.get("/complaints", checkAuth, getAllComplaintsForUser);
+
+complainsRouter.get('/complaint/:id',checkAuth, getComplaintById);
 
 complainsRouter.post("/complaints", checkAuth, createComplaint);
 

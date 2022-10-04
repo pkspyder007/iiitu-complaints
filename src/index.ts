@@ -6,6 +6,7 @@ import helmet from "helmet";
 import routers from "./routes";
 import cookieParser from "cookie-parser";
 import { httpLogger } from "./middlewares/logger";
+import { customCors } from "./middlewares/cors";
 
 /* Create new server instance */
 const app = new Server();
@@ -13,10 +14,10 @@ const app = new Server();
 /* Add middlewares */
 app
     .addMiddleware(express.json())
-    .addMiddleware(cors())
+    .addMiddleware(cookieParser())
+    .addMiddleware(customCors)
     .addMiddleware(express.urlencoded({ extended: false }))
     .addMiddleware(helmet())
-    .addMiddleware(cookieParser())
     .addMiddleware(httpLogger)
 
 /* Add Router */

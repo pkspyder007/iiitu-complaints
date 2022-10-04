@@ -21,7 +21,7 @@ const complaintSchema = new Schema<IComplaint>({
             type: String,
             required: true
         },
-            links: {
+        links: {
             type: [String]
         },
         remarks: {

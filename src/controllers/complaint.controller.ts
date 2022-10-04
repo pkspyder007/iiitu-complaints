@@ -11,10 +11,11 @@ export const createComplaint = async (req: Request, res: Response) => {
   try {
     // validate user body
     const payload = { ...req.body, user: req.user.userId };
+    
     const validateResult = validtors.createComplain.safeParse(payload);
     if (!validateResult.success) {
       return res.status(401).json({
-        success: false,
+        success: false, 
         message: getErrorMessageString(validateResult),
       });
     }
@@ -56,6 +57,22 @@ export const getAllComplaintsForUser = async (req: Request, res: Response) => {
     });
   }
 };
+
+export const getComplaintById = async (req:Request,res: Response) => {
+  try {
+    const { id } = req.params;
+    const complaint = await Complaint.findById(id);
+
+    return res.json({
+      success: true,
+      complaint,
+    });
+  } catch (error: any) {
+    res.status(501).json({
+      message: error.message,
+    });
+  }
+}
 
 export const getAllComplaintsForAdmin = async (req: Request, res: Response) => {
   try {
