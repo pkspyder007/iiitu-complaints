@@ -108,6 +108,26 @@ export const addRemark = async (req: Request, res: Response) => {
   }
 };
 
+export const update = async (req: Request, res: Response) => {
+  try {
+    const complain = await Complaint.findByIdAndUpdate(req.params.id, {
+      $set: {
+        ...req.body
+      },
+    });
+
+    return res.json({
+      success: true,
+      message: "COMPLAINT UPDATED",
+      complain,
+    });
+  } catch (error: any) {
+    res.status(501).json({
+      message: error.message,
+    });
+  }
+};
+
 export const updateStatus = async (req: Request, res: Response) => {
   try {
     const complain = await Complaint.findByIdAndUpdate(req.body.complainId, {
@@ -129,7 +149,7 @@ export const updateStatus = async (req: Request, res: Response) => {
 
 export const escalate = async (req: Request, res: Response) => {
   try {
-    const complain = await Complaint.findByIdAndUpdate(req.body.complainId, {
+    const complain = await Complaint.findByIdAndUpdate(req.body.complaintId, {
       $set: {
         status: "ESCALATED",
       },
@@ -139,6 +159,13 @@ export const escalate = async (req: Request, res: Response) => {
       return res.json({
         success: false,
         message: "Something went wrong",
+      });
+    }
+
+    if (complain.status === "ESCALATED") {
+      return res.json({
+        success: true,
+        message: "Complaint already escalated",
       });
     }
 
@@ -152,6 +179,11 @@ export const escalate = async (req: Request, res: Response) => {
         `${req.protocol}://${req.get("host")}/complaints/pdf/${complain._id}`
       )
     );
+
+    return res.json({
+      success: true,
+      message: "Complaint escalated",
+    });
   } catch (error: any) {
     res.status(501).json({
       message: error.message,

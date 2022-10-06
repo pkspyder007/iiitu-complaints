@@ -3,7 +3,7 @@ export const escalateEmailTemplate = (studentName: string, rollno: number, cId: 
 
     Complaint from student ${studentName} - ${rollno} has not been resolved in past 24 hrs.
 
-    Complaint ID: <b>${cId}/b>
+    Complaint ID: <b>${cId}</b>
     
     <a href="${complaintLink}">Click here to see complaint</a>
 `);
